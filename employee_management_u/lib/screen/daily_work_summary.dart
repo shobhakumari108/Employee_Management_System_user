@@ -118,7 +118,7 @@ class _IncompleteTaskWidgetState extends State<IncompleteTaskWidget> {
 
     var request = http.Request(
       'PUT',
-      Uri.parse('http://192.168.29.135:2000/app/task/updateTask/$taskId'),
+      Uri.parse('https://employee-management-u6y6.onrender.com/app/task/updateTask/$taskId'),
     );
     request.headers.addAll(headers);
     request.body = jsonEncode({
@@ -155,7 +155,7 @@ class _DailySummaryScreenState extends State<DailySummaryScreen> {
 
   Future<List<Map<String, dynamic>>> incompleteTasks() async {
     String getTaskUrl =
-        'http://192.168.29.135:2000/app/task/getIncompletedTaskByUserId/${userData.id}';
+        'https://employee-management-u6y6.onrender.com/app/task/getIncompletedTaskByUserId/${userData.id}';
 
     try {
       final response = await http.get(Uri.parse(getTaskUrl));

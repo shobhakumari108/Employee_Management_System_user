@@ -196,7 +196,7 @@ if (_selectedPhoto == null) {
       print("===================${userData.id}");
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('http://192.168.29.135:2000/app/attendence/addAttendence'),
+        Uri.parse('https://employee-management-u6y6.onrender.com/app/attendence/addAttendence'),
       );
       request.fields.addAll({
         "UserID": userData.id!,
@@ -306,7 +306,7 @@ if (_selectedPhoto == null) {
     try {
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('http://192.168.29.135:2000/app/location/addLocation'),
+        Uri.parse('https://employee-management-u6y6.onrender.com/app/location/addLocation'),
       );
       request.fields.addAll({
         'UserID': userData.id!,

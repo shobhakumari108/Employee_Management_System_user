@@ -12,7 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  static const String apiUrl = "http://192.168.29.135:2000/app/users/login";
+  static const String apiUrl = "https://employee-management-u6y6.onrender.com/app/users/login";
 
   static Future<UserData?> login(String email, String password) async {
     final response = await http.post(
@@ -49,7 +49,7 @@ Future<UserData?> updateProfile(String sid, String mobilenumber,
 
     var headers = {'Authorization': 'Bearer $token'};
     var request =
-        http.MultipartRequest('PUT', Uri.parse("http://192.168.29.135:2000/app/users/updateByUser/${sid}"));
+        http.MultipartRequest('PUT', Uri.parse("https://employee-management-u6y6.onrender.com/app/users/updateByUser/${sid}"));
     request.fields.addAll({
       'MoblieNumber': mobilenumber,
     });
@@ -116,7 +116,7 @@ else {
   Future<bool> getUserData(token, userID, context) async {
     var headers = {'Authorization': 'Bearer $token'};
     var request = http.Request('GET',
-        Uri.parse('http://192.168.29.135:2000/app/users/getUserById/$userID'));
+        Uri.parse('https://employee-management-u6y6.onrender.com/app/users/getUserById/$userID'));
 
     request.headers.addAll(headers);
 
@@ -146,7 +146,7 @@ else {
   var headers = {'Authorization': 'Bearer $token'};
   var request = http.Request(
     'POST', // Change the HTTP method to POST
-    Uri.parse('http://192.168.29.135:2000/app/users/logout'),
+    Uri.parse('https://employee-management-u6y6.onrender.com/app/users/logout'),
   );
 
   request.headers.addAll(headers);

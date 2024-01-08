@@ -36,7 +36,7 @@ class _EmployeeProfileScreenState extends State<EmployeeProfileScreen> {
   Future<void> fetchSalaryData() async {
   try {
     final response = await http.get(
-      Uri.parse('http://192.168.29.135:2000/app/attendence/sallaryByUserId/${userData.id}'),
+      Uri.parse('https://employee-management-u6y6.onrender.com/app/attendence/sallaryByUserId/${userData.id}'),
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
@@ -204,10 +204,34 @@ class _EmployeeProfileScreenState extends State<EmployeeProfileScreen> {
           child: Column(
             children: [
               Center(
-                child: CircleAvatar(
-                  radius: 60,
-                  backgroundImage: NetworkImage(userData.profilePhoto ?? ''),
-                ),
+                 child: 
+                // CircleAvatar(
+                //   radius: 60,
+                //   backgroundImage: NetworkImage(userData.profilePhoto ?? ''),
+                // ),
+
+                CircleAvatar(
+                                      radius: 60,
+                                      backgroundColor: Colors.blue[
+                                          100], // Set background color for the CircleAvatar
+                                      child:
+                                          userData.profilePhoto?.isNotEmpty ==
+                                                  true
+                                              ? ClipOval(
+                                                  child: Image.network(
+                                                    userData.profilePhoto!,
+                                                    width: 50,
+                                                    height: 50,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                )
+                                              : const Icon(
+                                                  Icons.person,
+                                                  size: 50,
+                                                  color: Color.fromARGB(
+                                                      255, 61, 124, 251),
+                                                ),
+                                    ),
               ),
               const SizedBox(height: 20),
             Text('${userData.firstName} ${userData.lastName}', style: TextStyle(fontSize: 20,fontWeight:FontWeight.bold),),
@@ -295,7 +319,7 @@ class _EmployeeProfileScreenState extends State<EmployeeProfileScreen> {
                     //  SizedBox(
                     //       height: 10,
                     //     ),
-                       Text('Payment: \$${getSallary.toStringAsFixed(2)}'),
+                       Text('Payment: ${getSallary.toStringAsFixed(2)}'),
                             Divider(color: Colors.grey[300],),
                                     
                                       Text('Actual salry : ${userData.salary}'),

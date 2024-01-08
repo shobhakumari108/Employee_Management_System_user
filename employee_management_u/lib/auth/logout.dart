@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 class LogoutScreen extends StatelessWidget {
   Future<void> logout() async {
     // Replace the URL with your logout API endpoint
-    const String logoutUrl = 'http://localhost:2000/app/users/logout';
+    const String logoutUrl = 'https://employee-management-u6y6.onrender.com/app/users/logout';
 
     try {
       final response = await http.post(Uri.parse(logoutUrl));

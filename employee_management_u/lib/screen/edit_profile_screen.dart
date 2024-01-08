@@ -29,6 +29,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void initState() {
     super.initState();
     _phoneController.text = widget.user.mobileNumber ?? "";
+    
   }
 
   pickImage() async {

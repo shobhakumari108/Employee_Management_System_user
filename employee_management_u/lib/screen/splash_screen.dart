@@ -32,7 +32,6 @@ class _SplashScreenState extends State<SplashScreen> {
           value.getString("token");
       if (userId != null && token != null) {
         await apiService.getUserData(token, userId, context).then((value) {
-          
           if (value) {
             removeAllAndPush(context, const MyHomePage());
           } else {
@@ -43,10 +42,10 @@ class _SplashScreenState extends State<SplashScreen> {
         Future.delayed(const Duration(seconds: 2)).then((value) {
           removeAllAndPush(context, UserLoginScreen());
         });
-         Future.delayed(const Duration(seconds: 2)).then((value) async =>
-              await apiService
-                  .logout(context)
-                  .then((value) => removeAllAndPush(context,  UserLoginScreen())));
+        Future.delayed(const Duration(seconds: 2)).then((value) async =>
+            await apiService
+                .logout(context)
+                .then((value) => removeAllAndPush(context, UserLoginScreen())));
       }
     });
   }

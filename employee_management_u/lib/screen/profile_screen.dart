@@ -22,8 +22,8 @@ class EmployeeProfileScreen extends StatefulWidget {
 
 class _EmployeeProfileScreenState extends State<EmployeeProfileScreen> {
   late UserData userData;
-   SalaryData? salaryData;
-    double getSallary = 0;
+  SalaryData? salaryData;
+  double getSallary = 0;
   String actualSallary = 'Loading...';
 
   @override
@@ -34,32 +34,33 @@ class _EmployeeProfileScreenState extends State<EmployeeProfileScreen> {
   }
 
   Future<void> fetchSalaryData() async {
-  try {
-    final response = await http.get(
-      Uri.parse('https://employee-management-u6y6.onrender.com/app/attendence/sallaryByUserId/${userData.id}'),
-    );
+    try {
+      final response = await http.get(
+        Uri.parse(
+            'https://employee-management-u6y6.onrender.com/app/attendence/sallaryByUserId/${userData.id}'),
+      );
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      final Map<String, dynamic> responseData = jsonDecode(response.body);
-      print('API Response: $responseData'); // Print the API response for debugging
-      final double getSallaryValue = responseData['data'][0]['counts']['GetSallary'];
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        print(
+            'API Response: $responseData'); // Print the API response for debugging
+        final double getSallaryValue =
+            responseData['data'][0]['counts']['GetSallary'];
         final String actualSallaryValue = responseData['ActualSallary'];
 
         setState(() {
           getSallary = getSallaryValue;
           actualSallary = 'Actual Salary: $actualSallaryValue';
         });
-    } else {
-      print('Failed to load salary data. Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
+      } else {
+        print(
+            'Failed to load salary data. Status Code: ${response.statusCode}');
+        print('Response Body: ${response.body}');
+      }
+    } catch (e) {
+      print('Error fetching salary data: $e');
     }
-  } catch (e) {
-    print('Error fetching salary data: $e');
   }
-}
-
-
-
 
   // bool _isImageUrl(String path) {
   bool _isImageUrl(String path) {
@@ -78,7 +79,7 @@ class _EmployeeProfileScreenState extends State<EmployeeProfileScreen> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
-     /* child: ListTile(
+      /* child: ListTile(
         title: Text(
           title,
           style: const TextStyle(
@@ -159,7 +160,6 @@ class _EmployeeProfileScreenState extends State<EmployeeProfileScreen> {
       ),
    */
     );
-
   }
 
   @override
@@ -182,7 +182,7 @@ class _EmployeeProfileScreenState extends State<EmployeeProfileScreen> {
         ),
         actions: [
           IconButton(
-            icon:const Icon(
+            icon: const Icon(
               Icons.edit,
               color: Color.fromARGB(255, 61, 124, 251),
             ),
@@ -204,199 +204,226 @@ class _EmployeeProfileScreenState extends State<EmployeeProfileScreen> {
           child: Column(
             children: [
               Center(
-                 child: 
-                // CircleAvatar(
-                //   radius: 60,
-                //   backgroundImage: NetworkImage(userData.profilePhoto ?? ''),
-                // ),
-
-                CircleAvatar(
-                                      radius: 60,
-                                      backgroundColor: Colors.blue[
-                                          100], // Set background color for the CircleAvatar
-                                      child:
-                                          userData.profilePhoto?.isNotEmpty ==
-                                                  true
-                                              ? ClipOval(
-                                                  child: Image.network(
-                                                    userData.profilePhoto!,
-                                                    width: 50,
-                                                    height: 50,
-                                                    fit: BoxFit.cover,
-                                                  ),
-                                                )
-                                              : const Icon(
-                                                  Icons.person,
-                                                  size: 50,
-                                                  color: Color.fromARGB(
-                                                      255, 61, 124, 251),
-                                                ),
-                                    ),
+                child: CircleAvatar(
+                  radius: 60,
+                  backgroundColor: Colors
+                      .blue[100], // Set background color for the CircleAvatar
+                  child: userData.profilePhoto?.isNotEmpty == true
+                      ? ClipOval(
+                          child: Image.network(
+                            userData.profilePhoto!,
+                            width: 120,
+                            height: 120,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : const Icon(
+                          Icons.person,
+                          size: 50,
+                          color: Color.fromARGB(255, 61, 124, 251),
+                        ),
+                ),
               ),
               const SizedBox(height: 20),
-            Text('${userData.firstName} ${userData.lastName}', style: TextStyle(fontSize: 20,fontWeight:FontWeight.bold),),
-            // Text("shobha@gmail.com"),
-           const SizedBox(height: 20,),
-//            Text('Month/Year: ${salaryData?.data?[0]?? ""}'),
-// Text('GetSallary: ${salaryData?.actualSallary ?? ""}'),
-
-
-           
-            Container(
-              width: size.width,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(10)
+              Text(
+                '${userData.firstName} ${userData.lastName}',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-              child:const Padding(
-                padding:  EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                      Text("Achievement",style: TextStyle(fontSize:20,fontWeight: FontWeight.bold ),),
-                      Icon(Icons.arrow_forward_ios)
-                    ],),
-                  ],
-                ),
+              const SizedBox(
+                height: 20,
               ),
-            ),
-
-            
-           const  SizedBox(height: 20,),
-             Container(
-              width: size.width,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                  const  Row(
-                      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                      Text("Contact information",style: TextStyle(fontSize:20,fontWeight: FontWeight.bold ),),
-                      
-                    ],),
-                    Divider(color: Colors.grey[300],),
-                    //  SizedBox(
-                    //       height: 10,
-                    //     ),
-                        Text("Mobile number : ${userData.mobileNumber}"),
-                         Divider(color: Colors.grey[300],),
-                        Text("Email : ${userData.email} "),
-
-                        
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20,),
-             Container(
-              width: size.width,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                  const  Row(
-                      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                      Text("Salary",style: TextStyle(fontSize:20,fontWeight: FontWeight.bold ),),
-                      
-                    ],),
-                    Divider(color: Colors.grey[300],),
-                    //  SizedBox(
-                    //       height: 10,
-                    //     ),
-                       Text('Payment: ${getSallary.toStringAsFixed(2)}'),
-                            Divider(color: Colors.grey[300],),
-                                    
-                                      Text('Actual salry : ${userData.salary}'),
-                  ],
-                ),
-              ),
-            ),
-            
-           const SizedBox(height: 20,),
-             Container(
-              width: size.width,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(10)
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                  const  Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                      Text("General information",style: TextStyle(fontSize:20,fontWeight: FontWeight.bold ),),
-                      
-                      
-                    ],),
-                    Divider(color: Colors.grey[300],),
-                    Text('Job title : ${userData.jobTitle} '),
-                    Divider(color: Colors.grey[300],),
-                          Text('Joining date : ${userData.joiningDate}'),
-                          Divider(color: Colors.grey[300],),
-                        
+              Container(
+                width: size.width,
+                decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(10)),
+                child: const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
                           Text(
-                            'Company name : ${userData.companyName}',
+                            "Achievement",
+                            style: TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
                           ),
-                          Divider(color: Colors.grey[300],),
-                          Text(
-                              "Employee id : ${userData.companyEmployeeID} "),
-                              Divider(color: Colors.grey[300],),
-                          Text("Department : ${userData.department} "),
-                          Divider(color: Colors.grey[300],),
-                          Text(
-                              "Employment status : ${userData.employmentStatus}"),
-                              Divider(color: Colors.grey[300],),
-                          Text("Maneger id : ${userData.managerID} "),
-                  ],
+                          Icon(Icons.arrow_forward_ios)
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-           const SizedBox(height: 20,),
-             Container(
-              width: size.width,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(10),
+              const SizedBox(
+                height: 20,
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                  const  Row(
-                      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                      Text("Additional information",style: TextStyle(fontSize:20,fontWeight: FontWeight.bold ),),
-                      
-                    ],),
-                    Divider(color: Colors.grey[300],),
-                    //  SizedBox(
-                    //       height: 10,
-                    //     ),
-                        Text("Address :${userData.address} "),
-                  ],
+              Container(
+                width: size.width,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(
+                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Contact information",
+                            style: TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      Divider(
+                        color: Colors.grey[300],
+                      ),
+                      //  SizedBox(
+                      //       height: 10,
+                      //     ),
+                      Text("Mobile number : ${userData.mobileNumber}"),
+                      Divider(
+                        color: Colors.grey[300],
+                      ),
+                      Text("Email : ${userData.email} "),
+                    ],
+                  ),
                 ),
               ),
-            ),
+              const SizedBox(
+                height: 20,
+              ),
+              Container(
+                width: size.width,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(
+                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Salary",
+                            style: TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      Divider(
+                        color: Colors.grey[300],
+                      ),
+                      Text('Payment: ${getSallary.toStringAsFixed(2)}'),
+                      Divider(
+                        color: Colors.grey[300],
+                      ),
+                      Text('Actual salry : ${userData.salary}'),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              Container(
+                width: size.width,
+                decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(10)),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            "General information",
+                            style: TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      Divider(
+                        color: Colors.grey[300],
+                      ),
+                      Text('Job title : ${userData.jobTitle} '),
+                      Divider(
+                        color: Colors.grey[300],
+                      ),
+                      Text('Joining date : ${userData.joiningDate}'),
+                      Divider(
+                        color: Colors.grey[300],
+                      ),
+                      Text(
+                        'Company name : ${userData.companyName}',
+                      ),
+                      Divider(
+                        color: Colors.grey[300],
+                      ),
+                      Text("Employee id : ${userData.companyEmployeeID} "),
+                      Divider(
+                        color: Colors.grey[300],
+                      ),
+                      Text("Department : ${userData.department} "),
+                      Divider(
+                        color: Colors.grey[300],
+                      ),
+                      Text("Employment status : ${userData.employmentStatus}"),
+                      Divider(
+                        color: Colors.grey[300],
+                      ),
+                      Text("Maneger id : ${userData.managerID} "),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              Container(
+                width: size.width,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(
+                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Additional information",
+                            style: TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      Divider(
+                        color: Colors.grey[300],
+                      ),
+                      //  SizedBox(
+                      //       height: 10,
+                      //     ),
+                      Text("Address :${userData.address} "),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),

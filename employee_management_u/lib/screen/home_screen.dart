@@ -27,7 +27,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late UserData userData;
-late Future<List<Map<String, dynamic>>> holidaysFuture;
+  late Future<List<Map<String, dynamic>>> holidaysFuture;
 
   List<Map<String, dynamic>> holidays = [];
 
@@ -38,17 +38,18 @@ late Future<List<Map<String, dynamic>>> holidaysFuture;
   //   holidaysFuture = fetchData();
   // }
   void didChangeDependencies() {
-  super.didChangeDependencies();
+    super.didChangeDependencies();
 
-  userData = Provider.of<UserProvider>(context).userInformation;
-  holidaysFuture = fetchAndDisplayHolidays(); // Uncomment and assign the Future
-}
-
+    userData = Provider.of<UserProvider>(context).userInformation;
+    holidaysFuture =
+        fetchAndDisplayHolidays(); // Uncomment and assign the Future
+  }
 
 //===============logout
-Future<void> logout() async {
+  Future<void> logout() async {
     final sharedPreferences = await SharedPreferences.getInstance();
-    await sharedPreferences.clear(); // Clear all stored data, including token and user ID
+    await sharedPreferences
+        .clear(); // Clear all stored data, including token and user ID
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -57,43 +58,42 @@ Future<void> logout() async {
     );
   }
 
+  Future<List<Map<String, dynamic>>> fetchAndDisplayHolidays() async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+            'https://employee-management-u6y6.onrender.com/app/holiday/getHoliday'),
+      );
 
-
- Future<List<Map<String, dynamic>>> fetchAndDisplayHolidays() async {
-  try {
-    final response = await http.get(
-      Uri.parse('https://employee-management-u6y6.onrender.com/app/holiday/getHoliday'),
-    );
-
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      final Map<String, dynamic> responseData = jsonDecode(response.body);
-      List<Map<String, dynamic>> fetchedHolidays = List<Map<String, dynamic>>.from(responseData['data']);
-      return fetchedHolidays;
-    } else {
-      print('Failed to fetch holiday data. Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
-      return []; // Return an empty list in case of failure
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        List<Map<String, dynamic>> fetchedHolidays =
+            List<Map<String, dynamic>>.from(responseData['data']);
+        return fetchedHolidays;
+      } else {
+        print(
+            'Failed to fetch holiday data. Status Code: ${response.statusCode}');
+        print('Response Body: ${response.body}');
+        return []; // Return an empty list in case of failure
+      }
+    } catch (e) {
+      print("============");
+      print('Error fetching holiday data: $e');
+      return []; // Return an empty list in case of an error
     }
-  } catch (e) {
-    print("============");
-    print('Error fetching holiday data: $e');
-    return []; // Return an empty list in case of an error
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     print("=====home==token==${userData.token}");
-   
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Employee management System'),
       ),
       drawer: Drawer(
         child: ListView(
-        
           padding: EdgeInsets.zero,
           children: [
             const DrawerHeader(
@@ -151,8 +151,6 @@ Future<void> logout() async {
               title: const Text('Logout'),
               onTap: logout,
             ),
-
-
           ],
         ),
       ),
@@ -232,10 +230,7 @@ Future<void> logout() async {
                 //     print("====shared token==${value.getString("token")}");
                 //     print("====shared id==${value.getString("userId")}");
 
-                
-
-                
-                 FutureBuilder<List<Map<String, dynamic>>>(
+                FutureBuilder<List<Map<String, dynamic>>>(
                   future: holidaysFuture, // Use the Future you defined
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -243,15 +238,16 @@ Future<void> logout() async {
                     } else if (snapshot.hasError) {
                       return Center(child: Text('Error: ${snapshot.error}'));
                     } else {
-                      List<Map<String, dynamic>> holidays =
-                          snapshot.data ?? [];
+                      List<Map<String, dynamic>> holidays = snapshot.data ?? [];
 
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                         const SizedBox(height: 30,),
-                         const Text(
+                          const SizedBox(
+                            height: 30,
+                          ),
+                          const Text(
                             'Holidays',
                             style: TextStyle(
                               fontSize: 20,
@@ -267,22 +263,21 @@ Future<void> logout() async {
                               return Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Container(
-                                  decoration:const BoxDecoration(
-                                  color: Color.fromARGB(255, 226, 226, 226),
-                                    borderRadius: BorderRadius.all(Radius.circular(10))
-
+                                  decoration: const BoxDecoration(
+                                      color: Color.fromARGB(255, 226, 226, 226),
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(10))),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(name),
+                                        Text(date),
+                                      ],
+                                    ),
                                   ),
-                                 child:  Padding(
-                                   padding: const EdgeInsets.all(8.0),
-                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                       children: [
-                                         Text(name),
-                                          Text(date),
-                                       ],
-                                     ),
-                                 ),
-                                  
                                 ),
                               );
                             }).toList(),
@@ -292,8 +287,6 @@ Future<void> logout() async {
                     }
                   },
                 ),
-
-                
               ],
             ),
           ),

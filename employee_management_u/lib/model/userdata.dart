@@ -50,7 +50,7 @@ class UserData {
       token = json['token']??"";
       firstName = json['FirstName']??"";
       lastName = json['LastName']??"";
-      id = json['id']??"";
+      id = json['_id']??"";
       companyEmployeeID = json['ComapnyEmplyeeID']??"";
       managerID = json['ManagerId']??"";
       joiningDate = json['JoiningDate']==null?DateTime.now():DateTime.parse(json['JoiningDate']);

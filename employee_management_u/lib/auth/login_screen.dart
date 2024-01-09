@@ -1,19 +1,12 @@
 // user_login_screen.dart
 
 // import 'package:employee_management_u/model/user_login_get_model.dart';
-import 'package:employee_management_u/model/userdata.dart';
-import 'package:employee_management_u/provider/userProvider.dart';
-import 'package:employee_management_u/screen/check3.dart';
 import 'package:employee_management_u/screen/home.dart';
-import 'package:employee_management_u/screen/home_screen.dart';
 import 'package:employee_management_u/service/user_login_service.dart';
 import 'package:employee_management_u/utils/navigator.dart';
-import 'package:employee_management_u/utils/toaster.dart';
 import 'package:employee_management_u/widgets/textfield.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lottie/lottie.dart';
-import 'package:provider/provider.dart';
 
 class UserLoginScreen extends StatefulWidget {
   @override
@@ -21,9 +14,9 @@ class UserLoginScreen extends StatefulWidget {
 }
 
 class _UserLoginScreenState extends State<UserLoginScreen> {
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
-
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  AuthService authService = AuthService();
   // void _navigateToHomeScreen(BuildContext context) {
   //   Navigator.pushReplacement(
   //     context,
@@ -49,7 +42,7 @@ class _UserLoginScreenState extends State<UserLoginScreen> {
             Container(
               decoration: BoxDecoration(
                   color: Colors.blue[100],
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                       bottomLeft: Radius.circular(30),
                       bottomRight: Radius.circular(30))),
               child: Lottie.asset(
@@ -66,7 +59,6 @@ class _UserLoginScreenState extends State<UserLoginScreen> {
               ),
             ),
             const SizedBox(height: 40),
-            // Add your text fields or other UI elements here
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: buildTextFieldWithIcon(
@@ -92,28 +84,21 @@ class _UserLoginScreenState extends State<UserLoginScreen> {
                 height: 50,
                 child: ElevatedButton(
                   onPressed: () async {
-                    await AuthService.login(
-                            _emailController.text, _passwordController.text)
+                    await authService
+                        .login(_emailController.text, _passwordController.text,
+                            context)
                         .then((value) {
-                      if (value != null) {
-                        Provider.of<UserProvider>(context, listen: false)
-                            .setUser(value);
-
-                        showToast("Login Successful", Colors.green);
-
+                      if (value) {
                         removeAllAndPush(context, const MyHomePage());
-                      } else {
-                        showToast("Login Failed", Colors.red);
                       }
                     });
-                    // print(value?.toJson());
                   },
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(
                           10.0), // Adjust the radius as needed
                     ),
-                    primary: Color.fromARGB(255, 61, 124, 251),
+                    primary: const Color.fromARGB(255, 61, 124, 251),
                   ),
                   child: const Text(
                     'Login',

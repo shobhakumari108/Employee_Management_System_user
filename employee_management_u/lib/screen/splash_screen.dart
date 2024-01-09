@@ -42,10 +42,10 @@ class _SplashScreenState extends State<SplashScreen> {
         Future.delayed(const Duration(seconds: 2)).then((value) {
           removeAllAndPush(context, UserLoginScreen());
         });
-        Future.delayed(const Duration(seconds: 2)).then((value) async =>
-            await apiService
-                .logout(context)
-                .then((value) => removeAllAndPush(context, UserLoginScreen())));
+      //   Future.delayed(const Duration(seconds: 2)).then((value) async =>
+      //       await apiService
+      //           .logout(context)
+      //           .then((value) => removeAllAndPush(context, UserLoginScreen())));
       }
     });
   }

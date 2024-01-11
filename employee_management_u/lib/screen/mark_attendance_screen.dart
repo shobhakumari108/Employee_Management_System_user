@@ -28,7 +28,7 @@ late UserData userData;
    void didChangeDependencies() {
     super.didChangeDependencies();
   
-      userData = Provider.of<UserProvider>(context).userInformation;
+      userData = Provider.of<UserProvider>(context).userInformation!;
 
   }
 

@@ -3,14 +3,17 @@ import 'package:employee_management_u/utils/toaster.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:employee_management_u/provider/userProvider.dart';
 import 'package:employee_management_u/model/userdata.dart';
 
 class IncompleteTaskWidget extends StatefulWidget {
   final Future<List<Map<String, dynamic>>> taskList;
+  final VoidCallback onTasksSubmitted;
 
-  IncompleteTaskWidget({required this.taskList});
+  IncompleteTaskWidget(
+      {required this.taskList, required this.onTasksSubmitted});
 
   @override
   _IncompleteTaskWidgetState createState() => _IncompleteTaskWidgetState();
@@ -18,6 +21,8 @@ class IncompleteTaskWidget extends StatefulWidget {
 
 class _IncompleteTaskWidgetState extends State<IncompleteTaskWidget> {
   List<Map<String, dynamic>> tasks = [];
+  bool isSubmitting = false;
+  final dateFormatter = DateFormat('d MMMM, y');
 
   @override
   Widget build(BuildContext context) {
@@ -30,11 +35,11 @@ class _IncompleteTaskWidgetState extends State<IncompleteTaskWidget> {
             future: widget.taskList,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
+                return const Center(child: CircularProgressIndicator());
               } else if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Text('No tasks available.');
+                return const Text('No tasks available.');
               } else {
                 tasks = snapshot.data!;
                 return Column(
@@ -58,8 +63,16 @@ class _IncompleteTaskWidgetState extends State<IncompleteTaskWidget> {
                                   });
                                 },
                                 title: Text(task['task'] ?? ' '),
-                                subtitle: Text('Date: ${task['createdAt']}'),
-                                controlAffinity: ListTileControlAffinity.leading,
+                                subtitle: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                        // 'Date: ${task['createdAt']}'
+                                        '${dateFormatter.format(DateTime.parse(task['createdAt']))}'),
+                                  ],
+                                ),
+                                controlAffinity:
+                                    ListTileControlAffinity.leading,
                                 activeColor: Colors.green,
                               ),
                             ),
@@ -71,54 +84,67 @@ class _IncompleteTaskWidgetState extends State<IncompleteTaskWidget> {
               }
             },
           ),
-         const SizedBox(height: 30,),
+          const SizedBox(height: 30),
           SizedBox(
             width: size.width,
             height: 50,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                              10.0), // Adjust the radius as needed
-                        ),
-                        primary: Color.fromARGB(255, 61, 124, 251),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                primary: const Color.fromARGB(255, 61, 124, 251),
+              ),
+              onPressed: isSubmitting ? null : () => submitTasks(),
+              child: isSubmitting
+                  ? const CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Color.fromARGB(255, 61, 124, 251),
                       ),
-              onPressed: () {
-                submitTasks();
-              },
-            child: const Text(
-                        'Submit',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+                    )
+                  : const Text(
+                      'Submit',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
+                    ),
             ),
           ),
         ],
       ),
     );
-    
   }
 
   Future<void> submitTasks() async {
+    setState(() {
+      isSubmitting = true;
+    });
+
     for (var task in tasks) {
       if (task['completed'] == true) {
         await updateTaskCompletionStatus(task['_id'], true);
       }
     }
+
+    setState(() {
+      isSubmitting = false;
+    });
+
+    // Call the callback to notify that tasks are submitted
+    widget.onTasksSubmitted();
   }
 
   Future<void> updateTaskCompletionStatus(String taskId, bool completed) async {
     var headers = {
       'Content-Type': 'application/json',
-      // 'Authorization': 'Bearer ${user.token}',
     };
 
     var request = http.Request(
       'PUT',
-      Uri.parse('https://employee-management-u6y6.onrender.com/app/task/updateTask/$taskId'),
+      Uri.parse(
+          'https://employee-management-u6y6.onrender.com/app/task/updateTask/$taskId'),
     );
     request.headers.addAll(headers);
     request.body = jsonEncode({
@@ -132,7 +158,8 @@ class _IncompleteTaskWidgetState extends State<IncompleteTaskWidget> {
       showToast("Task completed", Colors.green);
     } else {
       print('Failed to update task status. ${response.reasonPhrase}');
-      showToast('Failed to update task status. ${response.reasonPhrase}', Colors.green);
+      showToast('Failed to update task status. ${response.reasonPhrase}',
+          Colors.green);
     }
   }
 }
@@ -146,11 +173,12 @@ class DailySummaryScreen extends StatefulWidget {
 
 class _DailySummaryScreenState extends State<DailySummaryScreen> {
   late UserData userData;
+  bool isSubmitting = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    userData = Provider.of<UserProvider>(context).userInformation;
+    userData = Provider.of<UserProvider>(context).userInformation!;
   }
 
   Future<List<Map<String, dynamic>>> incompleteTasks() async {
@@ -177,7 +205,7 @@ class _DailySummaryScreenState extends State<DailySummaryScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Daily Task'),
+        title: const Text('Daily Task'),
       ),
       body: Column(
         children: [
@@ -190,6 +218,10 @@ class _DailySummaryScreenState extends State<DailySummaryScreen> {
                   children: [
                     IncompleteTaskWidget(
                       taskList: incompleteTasks(),
+                      onTasksSubmitted: () {
+                        // Reload the task list when tasks are submitted
+                        setState(() {});
+                      },
                     ),
                   ],
                 ),

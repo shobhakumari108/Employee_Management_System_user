@@ -7,8 +7,10 @@ import 'package:employee_management_u/provider/userProvider.dart';
 import 'package:employee_management_u/screen/current_location_screen.dart';
 import 'package:employee_management_u/screen/daily_work_summary.dart';
 import 'package:employee_management_u/service/shared_pref.dart';
+import 'package:employee_management_u/utils/toaster.dart';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,6 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late Future<List<Map<String, dynamic>>> holidaysFuture;
 
   List<Map<String, dynamic>> holidays = [];
+  final dateFormatter = DateFormat('d MMMM, y');
 
   @override
   // void initState() {
@@ -40,23 +43,128 @@ class _HomeScreenState extends State<HomeScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    userData = Provider.of<UserProvider>(context).userInformation;
+    userData = Provider.of<UserProvider>(context).userInformation!;
     holidaysFuture =
         fetchAndDisplayHolidays(); // Uncomment and assign the Future
   }
 
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+
+  //   // Ensure that userInformation is not null before accessing its properties
+  //   if (Provider.of<UserProvider>(context).userInformation != null) {
+  //     userData = Provider.of<UserProvider>(context).userInformation!;
+  //     holidaysFuture = fetchAndDisplayHolidays();
+  //   }
+  // }
+
 //===============logout
-  Future<void> logout() async {
-    final sharedPreferences = await SharedPreferences.getInstance();
-    await sharedPreferences
-        .clear(); // Clear all stored data, including token and user ID
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => UserLoginScreen(),
-      ),
+// ...
+
+  Future<void> logout(BuildContext context) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirmation'),
+          content: Text('Are you sure you want to log out?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                // Perform additional cleanup actions if needed
+
+                // Clear SharedPreferences
+                final sharedPreferences = await SharedPreferences.getInstance();
+                await sharedPreferences.clear();
+                // Provider.of<UserProvider>(context, listen: false)
+                // .setUser(userData);
+
+                // Reset the application state if needed
+
+                // Provider.of<UserProvider>(context, listen: false).setUser(null);
+                //  Provider.of<UserProvider>(context, listen: false)
+                // .setUser(userData);
+
+                // Navigate to the login screen
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => UserLoginScreen()),
+                  (route) => false,
+                );
+              },
+              child: Text('Logout'),
+            ),
+          ],
+        );
+      },
     );
   }
+
+// ...
+
+//===============================
+  // Future<void> logout(BuildContext context) async {
+  //   try {
+  //     // Perform additional cleanup actions if needed
+
+  //     // Clear SharedPreferences
+  //     final sharedPreferences = await SharedPreferences.getInstance();
+  //     await sharedPreferences.clear();
+
+  //     // Reset the application state if needed
+
+  //     // Navigate to the login screen
+  //     Navigator.pushAndRemoveUntil(
+  //       context,
+  //       MaterialPageRoute(builder: (context) => UserLoginScreen()),
+  //       (route) => false,
+  //     );
+  //   } catch (e) {
+  //     // Handle any errors during logout
+  //     print('Error during logout: $e');
+  //   }
+  // }
+
+  // Future<void> logout(BuildContext context) async {
+  //   try {
+  //     final shared = await SharedPreferences.getInstance();
+  //     final token = shared.getString("token");
+
+  //     var headers = {'Authorization': 'Bearer $token'};
+  //     var request = http.Request(
+  //       'POST',
+  //       Uri.parse(
+  //           'https://employee-management-u6y6.onrender.com/app/users/logout'),
+  //     );
+
+  //     request.headers.addAll(headers);
+
+  //     http.StreamedResponse response = await request.send();
+
+  //     if (response.statusCode == 200) {
+  //       // Clear user-related data from SharedPreferences upon successful logout
+  //       await shared.clear();
+
+  //       // Navigate to the login screen
+  //       Navigator.pushAndRemoveUntil(
+  //         context,
+  //         MaterialPageRoute(builder: (context) => UserLoginScreen()),
+  //         (route) => false,
+  //       );
+  //     } else {
+  //       showToast(response.reasonPhrase, Colors.black);
+  //     }
+  //   } catch (e) {
+  //     // Handle any errors during logout
+  //     print('Error during logout: $e');
+  //   }
+  // }
 
   Future<List<Map<String, dynamic>>> fetchAndDisplayHolidays() async {
     try {
@@ -126,8 +234,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             ListTile(
-              leading: const Icon(Icons.lock),
-              title: const Text('App Lock'),
+              leading: const Icon(Icons.settings),
+              title: const Text('Setting'),
               onTap: () {
                 // Handle the app lock action
               },
@@ -149,7 +257,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ListTile(
               leading: const Icon(Icons.exit_to_app),
               title: const Text('Logout'),
-              onTap: logout,
+              onTap: () => logout(context),
             ),
           ],
         ),
@@ -259,7 +367,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           Column(
                             children: holidays.map((holiday) {
                               String name = holiday['holiday'];
-                              String date = holiday['holiDate'];
+                              // String date = holiday['holiDate'];
+
                               return Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Container(
@@ -273,8 +382,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text(name),
-                                        Text(date),
+                                        Text(
+                                          name,
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                          children: [
+                                            Text(
+                                                '${dateFormatter.format(DateTime.parse(holiday['holiDate']))}'),
+                                          ],
+                                        ),
                                       ],
                                     ),
                                   ),

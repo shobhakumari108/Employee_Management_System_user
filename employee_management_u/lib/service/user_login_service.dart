@@ -10,31 +10,74 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  String apiUrl = "http://192.168.29.135:2000/app/users";
+  String apiUrl = "https://employee-management-u6y6.onrender.com/app/users";
+
+  // Future<bool> login(
+  //     String email, String password, BuildContext context) async {
+  //   final response = await http.post(
+  //     Uri.parse("$apiUrl/login"),
+  //     headers: <String, String>{
+  //       'Content-Type': 'application/json; charset=UTF-8',
+  //     },
+  //     body: jsonEncode({'Email': email, 'Password': password}),
+  //   );
+
+  //   if (response.statusCode == 200 || response.statusCode == 201) {
+  //     final responseData = json.decode(response.body);
+  //     await SharedPreferences.getInstance().then((value) {
+  //       value.setString("token", responseData["user"]["token"]);
+  //       value.setString("userId", responseData["user"]["id"]);
+  //     });
+  //     UserData userData = UserData.fromJson(responseData["user"]);
+  //     Future.delayed(const Duration(seconds: 2)).then((value) {
+  //       Provider.of<UserProvider>(context, listen: false).setUser(userData);
+  //     });
+  //     return true;
+  //   } else {
+  //     showToast(response.reasonPhrase, Colors.black);
+  //     return false;
+  //   }
+  // }
 
   Future<bool> login(
       String email, String password, BuildContext context) async {
-    final response = await http.post(
-      Uri.parse("$apiUrl/login"),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode({'Email': email, 'Password': password}),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse("$apiUrl/login"),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({'Email': email, 'Password': password}),
+      );
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      final responseData = json.decode(response.body);
-      await SharedPreferences.getInstance().then((value) {
-        value.setString("token", responseData["user"]["token"]);
-        value.setString("userId", responseData["user"]["id"]);
-      });
-      UserData userData = UserData.fromJson(responseData["user"]);
-      Future.delayed(const Duration(seconds: 2)).then((value) {
-        Provider.of<UserProvider>(context, listen: false).setUser(userData);
-      });
-      return true;
-    } else {
-      showToast(response.reasonPhrase, Colors.black);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // Provider.of<UserProvider>(context, listen: false).setUser(null);
+        final responseData = json.decode(response.body);
+        await SharedPreferences.getInstance().then((value) {
+          value.setString("token", responseData["user"]["token"]);
+          value.setString("userId", responseData["user"]["id"]);
+        });
+        UserData userData = UserData.fromJson(responseData["user"]);
+        Future.delayed(const Duration(seconds: 2)).then((value) {
+          Provider.of<UserProvider>(context, listen: false).setUser(userData);
+        });
+
+        // UserData userData = UserData.fromJson(responseData["user"]);
+
+        // Update the user information in the UserProvider
+        // Provider.of<UserProvider>(context, listen: false).setUser(userData);
+        showToast('Login successful!', Colors.green);
+
+        return true;
+      } else {
+        // Display a toast message for incorrect email or password
+        showToast(
+            'Incorrect email or password ${response.reasonPhrase}', Colors.red);
+        return false;
+      }
+    } catch (e) {
+      // Display a toast message for other errors
+      showToast('An error occurred: $e', Colors.red);
       return false;
     }
   }
@@ -86,7 +129,7 @@ class AuthService {
 
     http.StreamedResponse response = await request.send();
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 || response.statusCode == 201) {
       final data = await response.stream.bytesToString();
       print(data);
       final jsondata = jsonDecode(data);

@@ -32,13 +32,14 @@ class _CurrentLocationScreenState extends State<CurrentLocationScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    userData = Provider.of<UserProvider>(context).userInformation;
+    userData = Provider.of<UserProvider>(context).userInformation!;
   }
 
   String attendanceStatus = 'Present';
   Position? currentLocation;
   DateTime selectedDate = DateTime.now();
   String? _selectedPhoto;
+  bool _isLoading = false;
 
   Position? _currentPosition;
   String _currentAddress = 'Loading...';
@@ -166,37 +167,37 @@ class _CurrentLocationScreenState extends State<CurrentLocationScreen> {
   }
 
   Future<void> _submitAttendance() async {
+    setState(() {
+      _isLoading = true;
+    });
     try {
       if (attendanceStatus == 'Leave' || attendanceStatus == 'Holiday') {
         //  Fluttertoast.showToast(msg: ' no need  a photo.');
         // return;
-       
-      }else{
-       
-if (_selectedPhoto == null) {
-        Fluttertoast.showToast(msg: 'Please select a photo.');
-        return;
+      } else {
+        if (_selectedPhoto == null) {
+          Fluttertoast.showToast(msg: 'Please select a photo.');
+          return;
+        }
       }
-      }
-      
-       if (_currentPosition == null) {
+
+      if (_currentPosition == null) {
         Fluttertoast.showToast(msg: 'Could not fetch the current location.');
         return;
-
       }
-      
-  print("=========auth${userData.token}");
+
+      print("=========auth${userData.token}");
       var headers = {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ${userData.token}'
-      
       };
 
       print("${userData.token}");
       print("===================${userData.id}");
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('https://employee-management-u6y6.onrender.com/app/attendence/addAttendence'),
+        Uri.parse(
+            'https://employee-management-u6y6.onrender.com/app/attendence/addAttendence'),
       );
       request.fields.addAll({
         "UserID": userData.id!,
@@ -213,13 +214,12 @@ if (_selectedPhoto == null) {
       print("${selectedDate.toUtc().toIso8601String()}");
       request.headers.addAll(headers);
 
-
       if (attendanceStatus != 'Leave' && attendanceStatus != 'Holiday') {
-      if (_selectedPhoto != null) {
-        request.files
-            .add(await http.MultipartFile.fromPath('Photo', _selectedPhoto!));
+        if (_selectedPhoto != null) {
+          request.files
+              .add(await http.MultipartFile.fromPath('Photo', _selectedPhoto!));
+        }
       }
-    }
 
       // request.files
       //     .add(await http.MultipartFile.fromPath('Photo', _selectedPhoto!));
@@ -249,9 +249,12 @@ if (_selectedPhoto == null) {
       Fluttertoast.showToast(
         msg: 'Error submitting attendance. Please try again. $e',
       );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
- 
 
   Future<void> _pickImage(ImageSource source) async {
     try {
@@ -306,7 +309,8 @@ if (_selectedPhoto == null) {
     try {
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('https://employee-management-u6y6.onrender.com/app/location/addLocation'),
+        Uri.parse(
+            'https://employee-management-u6y6.onrender.com/app/location/addLocation'),
       );
       request.fields.addAll({
         'UserID': userData.id!,
@@ -391,7 +395,7 @@ if (_selectedPhoto == null) {
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                const  Center(
+                                  const Center(
                                       child: Icon(
                                     Icons.fmd_good,
                                     size: 40,
@@ -467,7 +471,7 @@ if (_selectedPhoto == null) {
                   ),
                 ),
                 const SizedBox(height: 20),
-               /* Row(
+                /* Row(
                   children: [
                     SizedBox(
                       width: size.width * .5 - 21,
@@ -528,7 +532,7 @@ if (_selectedPhoto == null) {
                 ), */
 
                 //********************************** */
-                  Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     SizedBox(
@@ -540,7 +544,6 @@ if (_selectedPhoto == null) {
                         },
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.zero,
-                          
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),
@@ -628,28 +631,28 @@ if (_selectedPhoto == null) {
                             height: 20,
                           ),
                           Visibility(
-  visible: !(attendanceStatus == 'Leave' || attendanceStatus == 'Holiday'),
-  child: SizedBox(
-    width: size.width - 32,
-    height: 50,
-    child: ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-      ),
-      onPressed: () {
-        _pickImage(ImageSource.camera);
-      },
-      child: const Icon(
-        Icons.add_a_photo,
-        color: Colors.black87,
-        size: 40,
-      ),
-    ),
-  ),
-),
-
+                            visible: !(attendanceStatus == 'Leave' ||
+                                attendanceStatus == 'Holiday'),
+                            child: SizedBox(
+                              width: size.width - 32,
+                              height: 50,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                ),
+                                onPressed: () {
+                                  _pickImage(ImageSource.camera);
+                                },
+                                child: const Icon(
+                                  Icons.add_a_photo,
+                                  color: Colors.black87,
+                                  size: 40,
+                                ),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -667,9 +670,7 @@ if (_selectedPhoto == null) {
           width: size.width - 32,
           height: 50,
           child: ElevatedButton(
-            onPressed: () {
-              _submitAttendance();
-            },
+            onPressed: _isLoading ? null : _submitAttendance,
             style: ElevatedButton.styleFrom(
               shape: RoundedRectangleBorder(
                 borderRadius:
@@ -677,14 +678,20 @@ if (_selectedPhoto == null) {
               ),
               primary: const Color.fromARGB(255, 61, 124, 251),
             ),
-            child: const Text(
-              'Submit Attendance',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
+            child: _isLoading
+                ? const CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Color.fromARGB(255, 61, 124, 251),
+                    ),
+                  )
+                : const Text(
+                    'Submit Attendance',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
           ),
         ),
       ),

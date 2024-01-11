@@ -8,6 +8,7 @@ import 'package:employee_management_u/screen/edit_profile_screen.dart';
 import 'package:employee_management_u/screen/home.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 import 'package:provider/provider.dart';
 
@@ -25,11 +26,12 @@ class _EmployeeProfileScreenState extends State<EmployeeProfileScreen> {
   SalaryData? salaryData;
   double getSallary = 0;
   String actualSallary = 'Loading...';
+  final dateFormatter = DateFormat('d MMMM, y');
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    userData = Provider.of<UserProvider>(context).userInformation;
+    userData = Provider.of<UserProvider>(context).userInformation!;
     fetchSalaryData();
   }
 
@@ -323,11 +325,11 @@ class _EmployeeProfileScreenState extends State<EmployeeProfileScreen> {
                       Divider(
                         color: Colors.grey[300],
                       ),
-                      Text('Payment: ${getSallary.toStringAsFixed(2)}'),
+                      Text('Payment: ₹ ${getSallary.toStringAsFixed(2)}'),
                       Divider(
                         color: Colors.grey[300],
                       ),
-                      Text('Actual salry : ${userData.salary}'),
+                      Text('Actual salry : ₹ ${userData.salary}'),
                     ],
                   ),
                 ),
@@ -362,7 +364,10 @@ class _EmployeeProfileScreenState extends State<EmployeeProfileScreen> {
                       Divider(
                         color: Colors.grey[300],
                       ),
-                      Text('Joining date : ${userData.joiningDate}'),
+                      Text(
+                        // 'Joining date : ${userData.joiningDate}'
+                        'Joining date : ${dateFormatter.format(DateTime.parse('${userData.joiningDate}'))}',
+                      ),
                       Divider(
                         color: Colors.grey[300],
                       ),

@@ -29,7 +29,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void initState() {
     super.initState();
     _phoneController.text = widget.user.mobileNumber ?? "";
-    
   }
 
   pickImage() async {
@@ -65,9 +64,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 //               ),
 //             );
       Navigator.pop(context);
-      setState(() {
-        
-      });
+      setState(() {});
     });
   }
 
@@ -133,12 +130,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 });
                               }
                             },
-                            child:const Row(
+                            child: const Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.edit,color: Color.fromARGB(255, 61, 124, 251)),
+                                Icon(Icons.edit,
+                                    color: Color.fromARGB(255, 61, 124, 251)),
                                 SizedBox(width: 5),
-                                Text("Update Picture",style: TextStyle(color: Color.fromARGB(255, 61, 124, 251)),),
+                                Text(
+                                  "Update Picture",
+                                  style: TextStyle(
+                                      color: Color.fromARGB(255, 61, 124, 251)),
+                                ),
                               ],
                             )),
                       ],
@@ -160,7 +162,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
                 const Spacer(),
                 ElevatedButton(
-                  onPressed: _updateEmployeeProfile,
+                  onPressed: isLoading ? null : _updateEmployeeProfile,
                   style: ElevatedButton.styleFrom(
                     primary: const Color.fromARGB(255, 61, 124, 251),
                     onPrimary: Colors.white,
@@ -173,8 +175,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                   child: isLoading
                       ? const CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
+                          // strokeWidth: 2,
+                          // color: Colors.white,
+
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Color.fromARGB(255, 61, 124, 251),
+                          ),
                         )
                       : const Text("Submit"),
                 ),

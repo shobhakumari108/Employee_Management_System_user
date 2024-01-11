@@ -1,11 +1,9 @@
-// user_login_screen.dart
-
-// import 'package:employee_management_u/model/user_login_get_model.dart';
+import 'package:employee_management_u/screen/home_screen.dart';
+import 'package:flutter/material.dart';
 import 'package:employee_management_u/screen/home.dart';
 import 'package:employee_management_u/service/user_login_service.dart';
 import 'package:employee_management_u/utils/navigator.dart';
 import 'package:employee_management_u/widgets/textfield.dart';
-import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
 class UserLoginScreen extends StatefulWidget {
@@ -17,19 +15,7 @@ class _UserLoginScreenState extends State<UserLoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   AuthService authService = AuthService();
-  // void _navigateToHomeScreen(BuildContext context) {
-  //   Navigator.pushReplacement(
-  //     context,
-  //     MaterialPageRoute(builder: (context) => MyHomePage()),
-  //   );
-  // }
-
-  // void _navigateToUserDetailsScreen(BuildContext context, UserLoginGet user) {
-  //   Navigator.push(
-  //     context,
-  //     MaterialPageRoute(builder: (context) => UserDetailsScreen(user: user)),
-  //   );
-  // }
+  bool _isLoggingIn = false; // Added to track login status
 
   @override
   Widget build(BuildContext context) {
@@ -83,16 +69,34 @@ class _UserLoginScreenState extends State<UserLoginScreen> {
                 width: size.width,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: () async {
-                    await authService
-                        .login(_emailController.text, _passwordController.text,
-                            context)
-                        .then((value) {
-                      if (value) {
-                        removeAllAndPush(context, const MyHomePage());
-                      }
-                    });
-                  },
+                  onPressed: _isLoggingIn
+                      ? null
+                      : () async {
+                          // Set login status to true
+                          setState(() {
+                            _isLoggingIn = true;
+                          });
+
+                          await authService
+                              .login(_emailController.text,
+                                  _passwordController.text, context)
+                              .then((value) {
+                            if (value) {
+                             Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const MyHomePage(),
+                                ),
+                                (route) => false,
+                              );
+                            }
+                          }).whenComplete(() {
+                            // Set login status to false when completed
+                            setState(() {
+                              _isLoggingIn = false;
+                            });
+                          });
+                        },
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(
@@ -100,14 +104,20 @@ class _UserLoginScreenState extends State<UserLoginScreen> {
                     ),
                     primary: const Color.fromARGB(255, 61, 124, 251),
                   ),
-                  child: const Text(
-                    'Login',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+                  child: _isLoggingIn
+                      ? CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Color.fromARGB(255, 61, 124, 251),
+                          ),
+                        )
+                      : const Text(
+                          'Login',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                 ),
               ),
             ),
